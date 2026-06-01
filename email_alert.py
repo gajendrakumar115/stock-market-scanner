@@ -3,12 +3,13 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from dotenv import load_dotenv
 import os
 
 def send_email(file_path):
 
     sender_email = "gajendra.kumar@impressico.com"
-    app_password = "okntvjxjkofhhiuo"
+    app_password = os.getenv("EMAIL_PASSWORD")
 
     receiver_emails = [
         "gajendra.kumar@impressico.com"
