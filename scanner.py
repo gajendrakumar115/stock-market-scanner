@@ -20,10 +20,14 @@ def scan_stocks(stock_list):
                            data["Close"].iloc[-20]
                    ) * 100
 
-        if latest_rsi < 40 and momentum > 0:
+        if latest_rsi < 60 and momentum > 3:
             signal = "BUY"
-        else:
+
+        elif latest_rsi > 70:
             signal = "SELL"
+
+        else:
+            signal = "HOLD"
 
         results.append({
             "symbol": symbol,

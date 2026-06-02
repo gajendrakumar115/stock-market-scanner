@@ -41,38 +41,47 @@ except Exception as e:
     st.stop()
 
 # Update Metrics
-buy_signals = len(
-    scanner_df[scanner_df["Signal"]=="BUY"]
-)
+buy_signals = len(scanner_df[scanner_df["Signal"] == "BUY"])
+sell_signals = len(scanner_df[scanner_df["Signal"] == "SELL"])
+hold_signals = len(scanner_df[scanner_df["Signal"] == "HOLD"])
 
 
 col1.metric("Stocks Scanned", len(stocks))
 col2.metric("Buy Signals", buy_signals)
-col3.metric("Portfolio Value", "₹64,499")
+col3.metric("Hold Signals", hold_signals)
 
 st.divider()
 
 st.subheader("Market Summary")
 
-st.write(f"Total Stocks Scanned: {len(stocks)}")
-st.write(f"BUY Signals Found: {buy_signals}")
-st.write(f"SELL Signals Found: {len(scanner_df)-buy_signals}")
+st.write(f"🟢 BUY Signals Found: {buy_signals}")
+st.write(f"🟠 HOLD Signals Found: {hold_signals}")
+st.write(f"🔴 SELL Signals Found: {sell_signals}")
 
 st.subheader("📊 NIFTY50 Scanner Results")
 
 def highlight_signal(val):
     if val == "BUY":
-        return "background-color: green"
+        return "background-color: green; color: white"
     elif val == "SELL":
-        return "background-color: red"
+        return "background-color: red; color: white"
+    elif val == "HOLD":
+        return "background-color: orange; color: white"
     return ""
+scanner_df["Status"] = scanner_df["Signal"].map({
+    "BUY": "🟢 BUY",
+    "SELL": "🔴 SELL",
+    "HOLD": "🟠 HOLD"
+})
+
+#st.dataframe(scanner_df, width="stretch")
 
 styled_df = scanner_df.style.map(
     highlight_signal,
     subset=["Signal"]
 )
 
-st.dataframe(styled_df, use_container_width=True)
+st.dataframe(styled_df, width="stretch")
 
 buy_stocks = scanner_df[
     scanner_df["Signal"] == "BUY"
@@ -83,13 +92,15 @@ top_10 = buy_stocks.sort_values(
     ascending=[False, True]
 )
 
-
 st.subheader("🔥 Top Buy Opportunities")
 
-if len(top_10) > 0:
+if not buy_stocks.empty:
     st.dataframe(
-        top_10.head(10),
-        use_container_width=True
+        buy_stocks.sort_values(
+            by=["Momentum", "RSI"],
+            ascending=[False, True]
+        ),
+        width="stretch"
     )
 else:
     st.warning("No BUY opportunities found today.")
